@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>gisgap-uav-structure · Multi-Modal Bridge Inspection</title>
+    <meta name="description" content="Interactive multi-modal pipeline visualizer for UAV-based structural defect inspection on bridges and viaducts. Aligned to TU/e STRUCTURE project.">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+    <link rel="stylesheet" href="assets/style.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="brand">gisgap</span>
+        <span class="brand-sep">/</span>
+        <span class="tool-name">uav-structure</span>
+      </div>
+      <div class="topbar-mid">
+        <span class="scene-label">Scene: Hovenring · Eindhoven (NL) · synthetic multi-modal pass</span>
+      </div>
+      <div class="topbar-right">
+        <a class="topbar-link" href="docs/pipeline.md" title="Pipeline methodology">methodology</a>
+        <a class="topbar-link" href="https://github.com/daudee215/gisgap-uav-structure" title="GitHub">repo</a>
+      </div>
+    </header>
+
+    <main class="layout">
+
+      <aside class="sidebar sidebar-left" aria-label="Pipeline diagram">
+        <div class="panel-head">
+          <h2>Pipeline</h2>
+          <p class="panel-sub">Click a stage to highlight its layer on the map.</p>
+        </div>
+
+        <ol class="pipeline" id="pipeline">
+          <li class="pipe-stage" data-stage="acquisition">
+            <span class="stage-tag">0</span>
+            <div>
+              <h3>Acquisition</h3>
+              <p>UAV pass · trajectory · sensor footprints · pose</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="rgb">
+            <span class="stage-tag">1a</span>
+            <div>
+              <h3>RGB ortho</h3>
+              <p>SfM/MVS · DINOv2 features · crack/corrosion seg</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="thermal">
+            <span class="stage-tag">1b</span>
+            <div>
+              <h3>Thermal</h3>
+              <p>Radiometric · ConvNeXt-FT · anomaly score</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="lidar">
+            <span class="stage-tag">1c</span>
+            <div>
+              <h3>LiDAR</h3>
+              <p>Sparse 3D conv · PointNet++ · deformation field</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="gpr">
+            <span class="stage-tag">1d</span>
+            <div>
+              <h3>GPR</h3>
+              <p>B-scans · hyperbola detector · CFAR delamination</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="acoustic">
+            <span class="stage-tag">1e</span>
+            <div>
+              <h3>Acoustic array</h3>
+              <p>Spectrogram CNN · CRNN · array beamforming</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="fusion">
+            <span class="stage-tag">2</span>
+            <div>
+              <h3>Cross-modal fusion</h3>
+              <p>Geometry-aware token attention · per-modality keys</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="defects">
+            <span class="stage-tag">3</span>
+            <div>
+              <h3>Defect head</h3>
+              <p>Class · geometry (DETR) · severity</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="rul">
+            <span class="stage-tag">4</span>
+            <div>
+              <h3>Temporal / RUL</h3>
+              <p>Risk progression · Bayesian state-space</p>
+            </div>
+          </li>
+          <li class="pipe-stage" data-stage="edge">
+            <span class="stage-tag">5</span>
+            <div>
+              <h3>Edge inference</h3>
+              <p>INT8 · pruned · saliency-gated fusion</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="panel-foot">
+          <a href="docs/architecture.svg">Open full architecture diagram →</a>
+        </div>
+      </aside>
+
+      <section class="map-area" aria-label="Inspection scene">
+        <div id="map"></div>
+
+        <div class="map-controls" role="region" aria-label="Layer toggles">
+          <h3 class="controls-title">Layers</h3>
+          <ul class="layer-list" id="layer-list">
+            <!-- populated by app.js -->
+          </ul>
+          <div class="legend" id="legend">
+            <h3 class="controls-title">Defect class</h3>
+            <ul class="legend-list">
+              <li><span class="dot dot-crack"></span>Crack</li>
+              <li><span class="dot dot-corrosion"></span>Corrosion</li>
+              <li><span class="dot dot-delam"></span>Delamination</li>
+              <li><span class="dot dot-void"></span>Void / internal</li>
+              <li><span class="dot dot-spall"></span>Spalling</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="banner-synth" role="note">
+          Synthetic sensor overlays · real bridge geometry · pipeline visualizer, not a detector
+        </div>
+      </section>
+
+      <aside class="sidebar sidebar-right" aria-label="Defect evidence">
+        <div class="panel-head">
+          <h2>Defect evidence</h2>
+          <p class="panel-sub" id="evidence-hint">Click a defect on the map to see its multi-modal evidence trace.</p>
+        </div>
+
+        <div class="evidence-empty" id="evidence-empty">
+          <div class="empty-icon" aria-hidden="true">◎</div>
+          <p>No defect selected.</p>
+          <p class="muted">Markers are coloured by class. Toggle modality layers on the map to see how each sensor contributes.</p>
+        </div>
+
+        <article class="evidence-card" id="evidence-card" hidden>
+          <header>
+            <span class="evidence-class" id="ev-class"></span>
+            <span class="evidence-id" id="ev-id"></span>
+          </header>
+          <dl class="evidence-meta">
+            <div><dt>Severity</dt><dd id="ev-severity"></dd></div>
+            <div><dt>Location</dt><dd id="ev-location"></dd></div>
+            <div><dt>First seen</dt><dd id="ev-first-seen"></dd></div>
+          </dl>
+
+          <h4>Modality contributions</h4>
+          <ul class="modality-bars" id="ev-modalities"></ul>
+
+          <h4>VLM statement</h4>
+          <p class="vlm-statement" id="ev-vlm"></p>
+
+          <h4>Risk progression (synthetic)</h4>
+          <svg id="ev-rul" viewBox="0 0 280 100" class="rul-chart" aria-label="Remaining useful life curve"></svg>
+          <p class="rul-caption" id="ev-rul-caption"></p>
+
+          <h4>Recommended action</h4>
+          <p class="action" id="ev-action"></p>
+        </article>
+      </aside>
+
+    </main>
+
+    <footer class="footer">
+      <span>gisgap-uav-structure · pipeline visualizer aligned to <a href="https://www.tue.nl/werken-bij-tue/vacatureoverzicht/phd-in-multi-modal-ai-for-uav-based-structural-defect-analysis">TU/e STRUCTURE PhD position</a></span>
+      <span class="footer-right">© 2026 Daud Tasleem · MIT</span>
+    </footer>
+
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <script src="assets/data.js"></script>
+    <script src="assets/app.js"></script>
+  </body>
+</html>

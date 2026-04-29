@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#2c3e50"/>
+    </marker>
+    <linearGradient id="modGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f7fafc"/>
+      <stop offset="100%" stop-color="#edf2f7"/>
+    </linearGradient>
+    <linearGradient id="featGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fef9e7"/>
+      <stop offset="100%" stop-color="#faecc6"/>
+    </linearGradient>
+    <linearGradient id="fuseGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#e8f4fd"/>
+      <stop offset="100%" stop-color="#cfe6f9"/>
+    </linearGradient>
+    <linearGradient id="headGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fdecea"/>
+      <stop offset="100%" stop-color="#f5cbc6"/>
+    </linearGradient>
+    <linearGradient id="edgeGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#e8f5e9"/>
+      <stop offset="100%" stop-color="#c8e6c9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Title -->
+  <text x="550" y="32" text-anchor="middle" font-size="20" font-weight="600" fill="#1a202c">Multi-Modal UAV Structural Inspection Pipeline</text>
+  <text x="550" y="54" text-anchor="middle" font-size="12" fill="#718096">gisgap-uav-structure  ·  aligned to TU/e STRUCTURE project</text>
+
+  <!-- Stage 0: Acquisition -->
+  <rect x="400" y="80" width="300" height="56" rx="8" fill="#1a202c"/>
+  <text x="550" y="105" text-anchor="middle" fill="#fff" font-weight="600">UAV inspection pass</text>
+  <text x="550" y="123" text-anchor="middle" fill="#cbd5e0" font-size="11">trajectory  ·  sensor footprints  ·  pose  ·  schedule</text>
+
+  <!-- Modality boxes -->
+  <g>
+    <rect x="40"  y="180" width="150" height="58" rx="6" fill="url(#modGrad)" stroke="#a0aec0"/>
+    <rect x="210" y="180" width="150" height="58" rx="6" fill="url(#modGrad)" stroke="#a0aec0"/>
+    <rect x="380" y="180" width="150" height="58" rx="6" fill="url(#modGrad)" stroke="#a0aec0"/>
+    <rect x="550" y="180" width="150" height="58" rx="6" fill="url(#modGrad)" stroke="#a0aec0"/>
+    <rect x="720" y="180" width="150" height="58" rx="6" fill="url(#modGrad)" stroke="#a0aec0"/>
+    <rect x="890" y="180" width="150" height="58" rx="6" fill="url(#modGrad)" stroke="#a0aec0"/>
+
+    <text x="115" y="205" text-anchor="middle" font-weight="600" fill="#2d3748">RGB ortho</text>
+    <text x="115" y="223" text-anchor="middle" font-size="11" fill="#4a5568">SfM/MVS · sub-mm GSD</text>
+    <text x="285" y="205" text-anchor="middle" font-weight="600" fill="#2d3748">Thermal</text>
+    <text x="285" y="223" text-anchor="middle" font-size="11" fill="#4a5568">radiometric · diurnal</text>
+    <text x="455" y="205" text-anchor="middle" font-weight="600" fill="#2d3748">LiDAR</text>
+    <text x="455" y="223" text-anchor="middle" font-size="11" fill="#4a5568">&gt;300 pts/m² · pose-fused</text>
+    <text x="625" y="205" text-anchor="middle" font-weight="600" fill="#2d3748">GPR</text>
+    <text x="625" y="223" text-anchor="middle" font-size="11" fill="#4a5568">b-scans · subsurface</text>
+    <text x="795" y="205" text-anchor="middle" font-weight="600" fill="#2d3748">Acoustic</text>
+    <text x="795" y="223" text-anchor="middle" font-size="11" fill="#4a5568">array · localized AE</text>
+    <text x="965" y="205" text-anchor="middle" font-weight="600" fill="#2d3748">X-ray backsc.</text>
+    <text x="965" y="223" text-anchor="middle" font-size="11" fill="#4a5568">internal voids</text>
+  </g>
+
+  <!-- Per-modality extractors -->
+  <g>
+    <rect x="40"  y="290" width="150" height="68" rx="6" fill="url(#featGrad)" stroke="#d69e2e"/>
+    <rect x="210" y="290" width="150" height="68" rx="6" fill="url(#featGrad)" stroke="#d69e2e"/>
+    <rect x="380" y="290" width="150" height="68" rx="6" fill="url(#featGrad)" stroke="#d69e2e"/>
+    <rect x="550" y="290" width="150" height="68" rx="6" fill="url(#featGrad)" stroke="#d69e2e"/>
+    <rect x="720" y="290" width="150" height="68" rx="6" fill="url(#featGrad)" stroke="#d69e2e"/>
+    <rect x="890" y="290" width="150" height="68" rx="6" fill="url(#featGrad)" stroke="#d69e2e"/>
+
+    <text x="115" y="313" text-anchor="middle" font-weight="600" fill="#744210">DINOv2 / ViT</text>
+    <text x="115" y="330" text-anchor="middle" font-size="11" fill="#744210">+ crack/corrosion</text>
+    <text x="115" y="346" text-anchor="middle" font-size="11" fill="#744210">segmentation head</text>
+
+    <text x="285" y="313" text-anchor="middle" font-weight="600" fill="#744210">ConvNeXt-FT</text>
+    <text x="285" y="330" text-anchor="middle" font-size="11" fill="#744210">env. correction +</text>
+    <text x="285" y="346" text-anchor="middle" font-size="11" fill="#744210">anomaly score</text>
+
+    <text x="455" y="313" text-anchor="middle" font-weight="600" fill="#744210">Sparse 3D Conv</text>
+    <text x="455" y="330" text-anchor="middle" font-size="11" fill="#744210">+ PointNet++ +</text>
+    <text x="455" y="346" text-anchor="middle" font-size="11" fill="#744210">deformation field</text>
+
+    <text x="625" y="313" text-anchor="middle" font-weight="600" fill="#744210">Hyperbola det.</text>
+    <text x="625" y="330" text-anchor="middle" font-size="11" fill="#744210">CFAR delam. +</text>
+    <text x="625" y="346" text-anchor="middle" font-size="11" fill="#744210">learned migration</text>
+
+    <text x="795" y="313" text-anchor="middle" font-weight="600" fill="#744210">Spectrogram CNN</text>
+    <text x="795" y="330" text-anchor="middle" font-size="11" fill="#744210">+ CRNN class +</text>
+    <text x="795" y="346" text-anchor="middle" font-size="11" fill="#744210">array beamforming</text>
+
+    <text x="965" y="313" text-anchor="middle" font-weight="600" fill="#744210">Conv encoder</text>
+    <text x="965" y="330" text-anchor="middle" font-size="11" fill="#744210">+ physics norm.</text>
+    <text x="965" y="346" text-anchor="middle" font-size="11" fill="#744210">+ depth est.</text>
+  </g>
+
+  <!-- Modality -> extractor arrows -->
+  <g stroke="#2c3e50" stroke-width="1.5" fill="none">
+    <line x1="115" y1="238" x2="115" y2="290" marker-end="url(#arrow)"/>
+    <line x1="285" y1="238" x2="285" y2="290" marker-end="url(#arrow)"/>
+    <line x1="455" y1="238" x2="455" y2="290" marker-end="url(#arrow)"/>
+    <line x1="625" y1="238" x2="625" y2="290" marker-end="url(#arrow)"/>
+    <line x1="795" y1="238" x2="795" y2="290" marker-end="url(#arrow)"/>
+    <line x1="965" y1="238" x2="965" y2="290" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- Acquisition -> modality fan-out -->
+  <g stroke="#2c3e50" stroke-width="1.5" fill="none">
+    <path d="M550,136 C550,160 115,160 115,180" marker-end="url(#arrow)"/>
+    <path d="M550,136 C550,160 285,160 285,180" marker-end="url(#arrow)"/>
+    <path d="M550,136 C550,160 455,160 455,180" marker-end="url(#arrow)"/>
+    <line x1="550" y1="136" x2="625" y2="180" marker-end="url(#arrow)"/>
+    <path d="M550,136 C550,160 795,160 795,180" marker-end="url(#arrow)"/>
+    <path d="M550,136 C550,160 965,160 965,180" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- Fusion block -->
+  <rect x="320" y="412" width="460" height="68" rx="8" fill="url(#fuseGrad)" stroke="#3182ce" stroke-width="2"/>
+  <text x="550" y="438" text-anchor="middle" font-weight="700" fill="#1a365d" font-size="15">Cross-modal attention fusion</text>
+  <text x="550" y="458" text-anchor="middle" font-size="11" fill="#2c5282">geometry-aware token fusion · per-modality keys/queries · structure-relative positional bias</text>
+  <text x="550" y="473" text-anchor="middle" font-size="11" fill="#2c5282">VLM-grade scene reasoning surface</text>
+
+  <!-- Extractor -> fusion arrows -->
+  <g stroke="#2c3e50" stroke-width="1.5" fill="none">
+    <path d="M115,358 C115,400 400,400 400,412" marker-end="url(#arrow)"/>
+    <path d="M285,358 C285,400 470,400 470,412" marker-end="url(#arrow)"/>
+    <line x1="455" y1="358" x2="540" y2="412" marker-end="url(#arrow)"/>
+    <line x1="625" y1="358" x2="560" y2="412" marker-end="url(#arrow)"/>
+    <path d="M795,358 C795,400 630,400 630,412" marker-end="url(#arrow)"/>
+    <path d="M965,358 C965,400 700,400 700,412" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- Heads -->
+  <g>
+    <rect x="100" y="525" width="240" height="74" rx="6" fill="url(#headGrad)" stroke="#c53030"/>
+    <text x="220" y="550" text-anchor="middle" font-weight="600" fill="#742a2a">Defect head</text>
+    <text x="220" y="568" text-anchor="middle" font-size="11" fill="#742a2a">classification · geometry (DETR)</text>
+    <text x="220" y="584" text-anchor="middle" font-size="11" fill="#742a2a">crack · spall · corrosion · void · delam.</text>
+
+    <rect x="430" y="525" width="240" height="74" rx="6" fill="url(#headGrad)" stroke="#c53030"/>
+    <text x="550" y="550" text-anchor="middle" font-weight="600" fill="#742a2a">Temporal / RUL head</text>
+    <text x="550" y="568" text-anchor="middle" font-size="11" fill="#742a2a">per-defect risk progression</text>
+    <text x="550" y="584" text-anchor="middle" font-size="11" fill="#742a2a">Bayesian state-space · calibrated CI</text>
+
+    <rect x="760" y="525" width="240" height="74" rx="6" fill="url(#headGrad)" stroke="#c53030"/>
+    <text x="880" y="550" text-anchor="middle" font-weight="600" fill="#742a2a">VLM evidence head</text>
+    <text x="880" y="568" text-anchor="middle" font-size="11" fill="#742a2a">per-defect natural-language</text>
+    <text x="880" y="584" text-anchor="middle" font-size="11" fill="#742a2a">multi-modal evidence statement</text>
+  </g>
+
+  <g stroke="#2c3e50" stroke-width="1.5" fill="none">
+    <path d="M400,480 C400,500 220,500 220,525" marker-end="url(#arrow)"/>
+    <line x1="550" y1="480" x2="550" y2="525" marker-end="url(#arrow)"/>
+    <path d="M700,480 C700,500 880,500 880,525" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- Edge inference -->
+  <rect x="350" y="635" width="400" height="58" rx="8" fill="url(#edgeGrad)" stroke="#2f855a" stroke-width="2"/>
+  <text x="550" y="660" text-anchor="middle" font-weight="700" fill="#22543d" font-size="14">Edge inference on UAV processor</text>
+  <text x="550" y="680" text-anchor="middle" font-size="11" fill="#22543d">INT8 quantized · structured pruning · distilled student · saliency-gated fusion</text>
+
+  <g stroke="#2c3e50" stroke-width="1.5" fill="none">
+    <path d="M220,599 C220,620 460,620 460,635" marker-end="url(#arrow)"/>
+    <line x1="550" y1="599" x2="550" y2="635" marker-end="url(#arrow)"/>
+    <path d="M880,599 C880,620 640,620 640,635" marker-end="url(#arrow)"/>
+  </g>
+
+</svg>

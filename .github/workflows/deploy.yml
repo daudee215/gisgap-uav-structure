@@ -1,0 +1,69 @@
+# Deploy gisgap-uav-structure to daudee215.github.io/gisgap-uav-structure/
+#
+# Why this shape:
+#   Per the gisgap GitHub Pages enablement constraint, we don't try to
+#   enable Pages on a new gisgap repo from CI. Instead, this workflow
+#   syncs the static site into the daudee215.github.io repo under
+#   the /gisgap-uav-structure/ subfolder, where it is served as part
+#   of the existing user Pages site.
+#
+# Required secrets in this repo:
+#   PAGES_PAT — a fine-scoped personal access token with `contents: write`
+#               on the daudee215/daudee215.github.io repository.
+#
+# Trigger: push to main, or manual workflow_dispatch.
+
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Stage built site
+        run: |
+          mkdir -p _site
+          # The site is static — copy everything except VCS / CI files.
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='_site' \
+            --exclude='node_modules' \
+            --exclude='*.log' \
+            ./ _site/
+          ls -la _site
+
+      - name: Checkout pages repo
+        uses: actions/checkout@v4
+        with:
+          repository: daudee215/daudee215.github.io
+          token: ${{ secrets.PAGES_PAT }}
+          path: pages-repo
+
+      - name: Sync into pages repo
+        run: |
+          TARGET="pages-repo/gisgap-uav-structure"
+          rm -rf "$TARGET"
+          mkdir -p "$TARGET"
+          rsync -av _site/ "$TARGET/"
+          cd pages-repo
+          git config user.name  "gisgap-deploy[bot]"
+          git config user.email "deploy@gisgap.local"
+          git add gisgap-uav-structure
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "deploy: gisgap-uav-structure @ ${GITHUB_SHA::7}"
+          git push
