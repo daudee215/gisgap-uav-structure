@@ -3,8 +3,9 @@
 (function (global) {
   "use strict";
 
-  // Hovenring, Eindhoven (suspended cycling roundabout viaduct)
-  const CENTER = [5.45412, 51.45093];
+  // Hovenring, Eindhoven (suspended cycling roundabout viaduct).
+  // Coordinates verified against OpenStreetMap.
+  const CENTER = [5.48469, 51.44769];
 
   // WGS84 helpers — flat-earth approximation around the scene center
   const M_PER_DEG_LAT = 111320;

@@ -53,21 +53,23 @@
     map.addSource("acoustic", { type: "geojson", data: D.GEOM.acoustic });
     map.addSource("defects", { type: "geojson", data: D.GEOM.defects });
 
-    // Bridge outline (always visible — context)
+    // Bridge outline (always visible — context).
+    // Opacity bumped so the structure reads on first load over the basemap.
     map.addLayer({
       id: "bridge-fill",
       type: "fill",
       source: "bridge",
-      paint: { "fill-color": "#1a202c", "fill-opacity": 0.18 },
+      paint: { "fill-color": "#1a202c", "fill-opacity": 0.34 },
     });
     map.addLayer({
       id: "bridge-outline",
       type: "line",
       source: "bridge",
-      paint: { "line-color": "#1a202c", "line-width": 1.4 },
+      paint: { "line-color": "#1a202c", "line-width": 2.2 },
     });
 
-    // RGB ortho mosaic (toggle: rgb)
+    // RGB ortho mosaic (toggle: rgb).
+    // Opacity dialled back + outline removed so the bridge polygon reads first.
     map.addLayer({
       id: "lyr-rgb",
       type: "fill",
@@ -75,8 +77,7 @@
       layout: { visibility: D.MODALITIES.rgb.default ? "visible" : "none" },
       paint: {
         "fill-color": "#1f6feb",
-        "fill-opacity": 0.10,
-        "fill-outline-color": "#1f6feb",
+        "fill-opacity": 0.06,
       },
     });
 
