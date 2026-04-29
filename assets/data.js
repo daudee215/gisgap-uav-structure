@@ -4,8 +4,9 @@
   "use strict";
 
   // Hovenring, Eindhoven (suspended cycling roundabout viaduct).
-  // Coordinates verified against OpenStreetMap.
-  const CENTER = [5.48469, 51.44769];
+  // Coordinates resolved from the OSM bridge relation 11828913 (Heerbaan,
+  // Meerhoven/Grasrijk). Bounding box ~100m x 100m, outer ring radius ~36m.
+  const CENTER = [5.41976, 51.43336];
 
   // WGS84 helpers — flat-earth approximation around the scene center
   const M_PER_DEG_LAT = 111320;
