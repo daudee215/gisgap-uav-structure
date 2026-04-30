@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>gisgap-uav-structure · Multi-Modal Bridge Inspection</title>
-    <meta name="description" content="Interactive multi-modal pipeline visualizer for UAV-based structural defect inspection on bridges and viaducts. Aligned to TU/e STRUCTURE project.">
+    <meta name="description" content="Interactive multi-modal pipeline visualizer for UAV-based structural defect inspection. Six sensor modalities (RGB, thermal, LiDAR, GPR, acoustic, X-ray), cross-modal attention fusion, defect head, temporal RUL modelling and edge deployment — rendered on a real Eindhoven bridge scene.">
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
     <link rel="stylesheet" href="assets/style.css">
   </head>
@@ -16,7 +16,7 @@
         <span class="tool-name">uav-structure</span>
       </div>
       <div class="topbar-mid">
-        <span class="scene-label">Scene: Hovenring · Eindhoven (NL) · synthetic multi-modal pass</span>
+        <span class="scene-label">Scene: Hovenring · Eindhoven (NL) · synthetic multi-modal pass · mission HVR-2026-04</span>
       </div>
       <div class="topbar-right">
         <a class="topbar-link" href="docs/pipeline.md" title="Pipeline methodology">methodology</a>
@@ -26,99 +26,138 @@
 
     <main class="layout">
 
+      <!-- ── Left sidebar: pipeline stages ── -->
       <aside class="sidebar sidebar-left" aria-label="Pipeline diagram">
         <div class="panel-head">
           <h2>Pipeline</h2>
-          <p class="panel-sub">Click a stage to highlight its layer on the map.</p>
+          <p class="panel-sub">Click a stage to highlight its layer. Use ↑ ↓ to step through.</p>
         </div>
 
-        <ol class="pipeline" id="pipeline">
-          <li class="pipe-stage" data-stage="acquisition">
+        <ol class="pipeline" id="pipeline" aria-label="Inspection pipeline stages">
+
+          <li class="pipe-stage" data-stage="acquisition" tabindex="0">
             <span class="stage-tag">0</span>
             <div>
               <h3>Acquisition</h3>
-              <p>UAV pass · trajectory · sensor footprints · pose</p>
+              <p>UAV pass · trajectory · sensor footprints · RTK pose</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="rgb">
+
+          <li class="pipe-stage" data-stage="rgb" tabindex="0">
             <span class="stage-tag">1a</span>
             <div>
               <h3>RGB ortho</h3>
               <p>SfM/MVS · DINOv2 features · crack/corrosion seg</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="thermal">
+
+          <li class="pipe-stage" data-stage="thermal" tabindex="0">
             <span class="stage-tag">1b</span>
             <div>
               <h3>Thermal</h3>
               <p>Radiometric · ConvNeXt-FT · anomaly score</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="lidar">
+
+          <li class="pipe-stage" data-stage="lidar" tabindex="0">
             <span class="stage-tag">1c</span>
             <div>
               <h3>LiDAR</h3>
               <p>Sparse 3D conv · PointNet++ · deformation field</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="gpr">
+
+          <li class="pipe-stage" data-stage="gpr" tabindex="0">
             <span class="stage-tag">1d</span>
             <div>
               <h3>GPR</h3>
               <p>B-scans · hyperbola detector · CFAR delamination</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="acoustic">
+
+          <li class="pipe-stage" data-stage="acoustic" tabindex="0">
             <span class="stage-tag">1e</span>
             <div>
               <h3>Acoustic array</h3>
               <p>Spectrogram CNN · CRNN · array beamforming</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="fusion">
+
+          <li class="pipe-stage" data-stage="xray" tabindex="0">
+            <span class="stage-tag">1f</span>
+            <div>
+              <h3>X-ray backscatter</h3>
+              <p>Conv encoder · physics normalisation · duct voids</p>
+            </div>
+          </li>
+
+          <li class="pipe-stage" data-stage="fusion" tabindex="0">
             <span class="stage-tag">2</span>
             <div>
               <h3>Cross-modal fusion</h3>
               <p>Geometry-aware token attention · per-modality keys</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="defects">
+
+          <li class="pipe-stage" data-stage="defects" tabindex="0">
             <span class="stage-tag">3</span>
             <div>
               <h3>Defect head</h3>
-              <p>Class · geometry (DETR) · severity</p>
+              <p>Class · geometry (DETR) · severity · conformal CI</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="rul">
+
+          <li class="pipe-stage" data-stage="rul" tabindex="0">
             <span class="stage-tag">4</span>
             <div>
               <h3>Temporal / RUL</h3>
-              <p>Risk progression · Bayesian state-space</p>
+              <p>Risk progression · neural ODE · Bayesian state-space</p>
             </div>
           </li>
-          <li class="pipe-stage" data-stage="edge">
+
+          <li class="pipe-stage" data-stage="edge" tabindex="0">
             <span class="stage-tag">5</span>
             <div>
               <h3>Edge inference</h3>
-              <p>INT8 · pruned · saliency-gated fusion</p>
+              <p>INT8 · pruned · saliency-gated · Orin / Hailo-15</p>
             </div>
           </li>
+
         </ol>
+
+        <!-- Sensor coverage stats -->
+        <div class="coverage-stats-panel">
+          <h4>Sensor coverage — mission HVR-2026-04</h4>
+          <div id="coverage-stats" aria-label="Coverage percentages per modality"></div>
+        </div>
 
         <div class="panel-foot">
           <a href="docs/architecture.svg">Open full architecture diagram →</a>
         </div>
       </aside>
 
+      <!-- ── Map ── -->
       <section class="map-area" aria-label="Inspection scene">
         <div id="map"></div>
 
-        <div class="map-controls" role="region" aria-label="Layer toggles">
+        <div class="map-controls" role="region" aria-label="Layer toggles and filters">
           <h3 class="controls-title">Layers</h3>
-          <ul class="layer-list" id="layer-list">
-            <!-- populated by app.js -->
-          </ul>
-          <div class="legend" id="legend">
+          <ul class="layer-list" id="layer-list"></ul>
+
+          <div class="filter-row">
+            <label for="severity-filter">Filter</label>
+            <select id="severity-filter" aria-label="Filter defects by severity">
+              <option value="all">All defects</option>
+              <option value="high-med">High + Medium</option>
+              <option value="high">High only</option>
+            </select>
+          </div>
+
+          <button id="btn-reset-view" class="btn-reset" aria-label="Reset map to initial view">
+            ↺ Reset view
+          </button>
+
+          <div class="legend" aria-label="Defect class legend">
             <h3 class="controls-title">Defect class</h3>
             <ul class="legend-list">
               <li><span class="dot dot-crack"></span>Crack</li>
@@ -127,6 +166,9 @@
               <li><span class="dot dot-void"></span>Void / internal</li>
               <li><span class="dot dot-spall"></span>Spalling</li>
             </ul>
+            <p style="margin:8px 0 0;font-size:11px;color:#718096;">
+              Orange ring = worsened since last pass
+            </p>
           </div>
         </div>
 
@@ -135,6 +177,7 @@
         </div>
       </section>
 
+      <!-- ── Right sidebar: defect evidence ── -->
       <aside class="sidebar sidebar-right" aria-label="Defect evidence">
         <div class="panel-head">
           <h2>Defect evidence</h2>
@@ -144,40 +187,56 @@
         <div class="evidence-empty" id="evidence-empty">
           <div class="empty-icon" aria-hidden="true">◎</div>
           <p>No defect selected.</p>
-          <p class="muted">Markers are coloured by class. Toggle modality layers on the map to see how each sensor contributes.</p>
+          <p class="muted">Markers are coloured by class; size encodes severity. Orange ring = worsening since last pass.</p>
         </div>
 
-        <article class="evidence-card" id="evidence-card" hidden>
-          <header>
-            <span class="evidence-class" id="ev-class"></span>
-            <span class="evidence-id" id="ev-id"></span>
-          </header>
-          <dl class="evidence-meta">
-            <div><dt>Severity</dt><dd id="ev-severity"></dd></div>
-            <div><dt>Location</dt><dd id="ev-location"></dd></div>
-            <div><dt>First seen</dt><dd id="ev-first-seen"></dd></div>
-          </dl>
+        <div id="evidence-scroll">
+          <article class="evidence-card" id="evidence-card" hidden aria-live="polite">
+            <header>
+              <span class="evidence-class" id="ev-class"></span>
+              <span class="evidence-id"    id="ev-id"></span>
+              <span class="confidence-badge" id="ev-confidence"></span>
+              <span class="delta-badge" id="ev-delta" hidden>▲ Worsening</span>
+            </header>
 
-          <h4>Modality contributions</h4>
-          <ul class="modality-bars" id="ev-modalities"></ul>
+            <dl class="evidence-meta">
+              <div><dt>Severity</dt>  <dd id="ev-severity"></dd></div>
+              <div><dt>Location</dt>  <dd id="ev-location"></dd></div>
+              <div><dt>First seen</dt><dd id="ev-first-seen"></dd></div>
+              <div><dt>Area</dt>      <dd id="ev-area"></dd></div>
+            </dl>
 
-          <h4>VLM statement</h4>
-          <p class="vlm-statement" id="ev-vlm"></p>
+            <h4>Modality contributions</h4>
+            <ul class="modality-bars" id="ev-modalities"></ul>
 
-          <h4>Risk progression (synthetic)</h4>
-          <svg id="ev-rul" viewBox="0 0 280 100" class="rul-chart" aria-label="Remaining useful life curve"></svg>
-          <p class="rul-caption" id="ev-rul-caption"></p>
+            <h4>VLM statement</h4>
+            <p class="vlm-statement" id="ev-vlm"></p>
 
-          <h4>Recommended action</h4>
-          <p class="action" id="ev-action"></p>
-        </article>
+            <h4>Risk progression (synthetic)</h4>
+            <svg id="ev-rul" viewBox="0 0 280 108" class="rul-chart"
+                 aria-label="Remaining useful life risk curve"></svg>
+            <p class="rul-caption" id="ev-rul-caption"></p>
+
+            <h4>Recommended action</h4>
+            <p class="action" id="ev-action"></p>
+          </article>
+        </div>
       </aside>
 
     </main>
 
     <footer class="footer">
-      <span>gisgap-uav-structure · pipeline visualizer aligned to <a href="https://www.tue.nl/werken-bij-tue/vacatureoverzicht/phd-in-multi-modal-ai-for-uav-based-structural-defect-analysis">TU/e STRUCTURE PhD position</a></span>
-      <span class="footer-right">© 2026 Daud Tasleem · MIT</span>
+      <span>
+        gisgap-uav-structure · aligned to
+        <a href="https://www.tue.nl/werken-bij-tue/vacatureoverzicht/phd-in-multi-modal-ai-for-uav-based-structural-defect-analysis">TU/e STRUCTURE PhD</a>
+        · 10 defects · 6 modalities
+      </span>
+      <div class="footer-right">
+        <span class="kbd-hint" aria-label="Use arrow keys to step through pipeline stages">
+          <kbd>↑</kbd><kbd>↓</kbd> step through pipeline
+        </span>
+        <span>© 2026 Daud Tasleem · MIT</span>
+      </div>
     </footer>
 
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
